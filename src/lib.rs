@@ -3,7 +3,7 @@ pub mod search_struct;
 
 use crate::resp_struct::RespStruct;
 use anyhow::{anyhow, Result};
-use elasticsearch::{http::transport::Transport, Elasticsearch, SearchParts}; /*http::Method, SearchParts*/
+use elasticsearch::{http::transport::Transport, Elasticsearch, SearchParts};
 use serde_json::Value;
 
 pub async fn search_elastic(
