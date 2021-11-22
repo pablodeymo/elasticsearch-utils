@@ -24,6 +24,7 @@ impl SearchStruct {
     pub fn new_from_hashmap_conditions(
         cond: HashMap<String, String>,
         fields_str: Option<&str>,
+        separator: &str,
     ) -> SearchStruct {
         let mut vec: Vec<MatchQuery> = Vec::new();
         for (k, v) in cond {
@@ -37,7 +38,7 @@ impl SearchStruct {
         // convertir lista de campos separada por comas en un vector de strings
         let mut fields: Vec<String> = Vec::new();
         if let Some(fields_value) = fields_str {
-            for field in fields_value.split(',') {
+            for field in fields_value.split(separator) {
                 fields.push(String::from(field));
             }
         }
