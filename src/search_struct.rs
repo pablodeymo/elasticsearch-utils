@@ -122,8 +122,8 @@ mod tests {
             },
             fields: Vec::new(),
             source: false,
-            from: None,
-            size: None,
+            from: 0,
+            size: 10,
         };
 
         println!("{:?}", serde_json::to_string(&q).unwrap());
