@@ -18,18 +18,22 @@ pub struct SearchStruct {
     pub fields: Vec<String>,
     #[serde(rename = "_source")]
     pub source: bool,
+    pub from: u64,
+    pub size: u64,
 }
 
 impl SearchStruct {
     pub fn new_from_hashmap_conditions(
-        cond: HashMap<String, String>,
+        cond: &HashMap<String, String>,
         fields_str: Option<&str>,
         separator: &str,
+        from: u64,
+        size: u64,
     ) -> SearchStruct {
         let mut vec: Vec<MatchQuery> = Vec::new();
         for (k, v) in cond {
             let mut cond_internal: HashMap<String, String> = HashMap::new();
-            cond_internal.insert(k, v);
+            cond_internal.insert(k.to_string(), v.to_string());
 
             vec.push(MatchQuery {
                 match_cond: cond_internal,
@@ -48,6 +52,8 @@ impl SearchStruct {
             },
             fields,
             source: false,
+            from,
+            size,
         }
     }
 }
@@ -60,6 +66,31 @@ pub struct BoolQuery {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MustQuery {
     pub must: Vec<MatchQuery>,
+}
+
+/// Struct to get the count of records
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueryStruct {
+    pub query: BoolQuery,
+}
+
+impl QueryStruct {
+    pub fn new_from_hashmap_conditions(cond: &HashMap<String, String>) -> QueryStruct {
+        let mut vec: Vec<MatchQuery> = Vec::new();
+        for (k, v) in cond {
+            let mut cond_internal: HashMap<String, String> = HashMap::new();
+            cond_internal.insert(k.to_string(), v.to_string());
+
+            vec.push(MatchQuery {
+                match_cond: cond_internal,
+            });
+        }
+        QueryStruct {
+            query: BoolQuery {
+                bool: MustQuery { must: vec },
+            },
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -91,6 +122,8 @@ mod tests {
             },
             fields: Vec::new(),
             source: false,
+            from: None,
+            size: None,
         };
 
         println!("{:?}", serde_json::to_string(&q).unwrap());
