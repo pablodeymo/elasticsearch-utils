@@ -18,6 +18,7 @@ pub struct SearchStruct {
     pub fields: Vec<String>,
     #[serde(rename = "_source")]
     pub source: bool,
+    pub sort: Option<HashMap<String, SortType>>,
     pub from: u64,
     pub size: u64,
 }
@@ -29,6 +30,7 @@ impl SearchStruct {
         separator: &str,
         from: u64,
         size: u64,
+        sort_input: Option<&str>,
     ) -> SearchStruct {
         let mut vec: Vec<MatchQuery> = Vec::new();
         for (k, v) in cond {
@@ -46,12 +48,28 @@ impl SearchStruct {
                 fields.push(String::from(field));
             }
         }
+
+        let sort = match sort_input {
+            None => None,
+            Some(s) => {
+                let mut sort_hash: HashMap<String, SortType> = HashMap::new();
+                sort_hash.insert(
+                    s.to_string(),
+                    SortType {
+                        order: "asc".to_string(),
+                    },
+                );
+                Some(sort_hash)
+            }
+        };
+
         SearchStruct {
             query: BoolQuery {
                 bool: MustQuery { must: vec },
             },
             fields,
             source: false,
+            sort,
             from,
             size,
         }
@@ -97,6 +115,12 @@ impl QueryStruct {
 pub struct MatchQuery {
     #[serde(rename(serialize = "match"))]
     pub match_cond: HashMap<String, String>,
+}
+
+// {"order" : "asc"}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SortType {
+    pub order: String,
 }
 
 #[cfg(test)]
