@@ -23,6 +23,11 @@ pub struct SearchStruct {
     pub size: u64,
 }
 
+pub enum OrderingType {
+    Asc,
+    Desc,
+}
+
 impl SearchStruct {
     pub fn new_from_hashmap_conditions(
         cond: &HashMap<String, String>,
@@ -30,7 +35,7 @@ impl SearchStruct {
         separator: &str,
         from: u64,
         size: u64,
-        sort_input: Option<&str>,
+        sort_input: Option<(&str, &OrderingType)>,
     ) -> SearchStruct {
         let mut vec: Vec<MatchQuery> = Vec::new();
         for (k, v) in cond {
@@ -51,12 +56,17 @@ impl SearchStruct {
 
         let sort = match sort_input {
             None => None,
-            Some(s) => {
+            Some((s, order_type)) => {
                 let mut sort_hash: HashMap<String, SortType> = HashMap::new();
                 sort_hash.insert(
                     s.to_string(),
-                    SortType {
-                        order: "asc".to_string(),
+                    match *order_type {
+                        OrderingType::Asc => SortType {
+                            order: "asc".to_string(),
+                        },
+                        OrderingType::Desc => SortType {
+                            order: "desc".to_string(),
+                        },
                     },
                 );
                 Some(sort_hash)
